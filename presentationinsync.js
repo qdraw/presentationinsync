@@ -74,10 +74,14 @@ io.on('connection', function (socket) {
 	});
 
 });
-// 
-// setInterval
-//
-// allClients
+
+
+var updateDropboxContent = setInterval(function(){
+	if (allClients.length >= 1) {
+		getdropbox.syncFolder();
+	}
+}, 50000);
+
 
 // io.on('connection', function (socket) {
 //

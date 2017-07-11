@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>TEST</title>
+    <title>Presentation in Sync</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- <link rel="stylesheet" href=""> -->
 	<style>
@@ -52,64 +52,39 @@
 
 		 #image {
 			 max-width: 100%;
+			 transition: opacity 0.5s ease-in-out;
 		 }
 	</style>
 
 	<!-- <link rel="icon" type="image/png" href="https://apollo.qdraw.eu/ml/favicon.png" /> -->
   </head>
   <body>
+	  <script src="/socket.io/socket.io.js"></script>
 
 <script>
 	function next() {
-		document.querySelector("#image").src = ""
-
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && (this.status === 200 || this.status === 304) && xhttp.responseText.length >= 4) {
-				console.log("send>>" + xhttp.responseText);
-			}
-		};
-		xhttp.open("GET", "next" , true);
-		xhttp.send();
+		document.querySelector("#image").style.opacity = 0;
+		socket.emit('next', {});
 	}
 	function prev() {
-		document.querySelector("#image").src = ""
-
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && (this.status === 200 || this.status === 304) && xhttp.responseText.length >= 4) {
-				console.log("send>>" + xhttp.responseText);
-			}
-		};
-		xhttp.open("GET", "prev" , true);
-		xhttp.send();
+		document.querySelector("#image").style.opacity = 0;
+		socket.emit('prev', {});
 	}
+
 	var imgurl = undefined;
 
-	function getImage() {
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && (this.status === 200 || this.status === 304) && xhttp.responseText.length >= 4) {
+	var socket = io();
 
-				if (JSON.parse(xhttp.responseText) !== imgurl) {
-					imgurl = JSON.parse(xhttp.responseText);
-					document.querySelector("#image").src = imgurl
-					console.log(xhttp.responseText);
-				}
-			}
-
-		};
-
-		xhttp.open("GET", "status" , true);
-		xhttp.send();
-	}
-
-	setInterval(function(){
-		getImage();
-	}, 3500);
-
-	getImage();
-
+    socket.on('status', function (data) {
+		console.log(data.image);
+		if (data.image !== undefined) {
+			document.querySelector("#image").style.opacity = 0;
+			setTimeout(function(){
+				document.querySelector("#image").style.opacity = 1;
+				document.querySelector("#image").src = data.image;
+			}, 500);
+		}
+     });
 </script>
 	<a href="javascript:prev()"><==</a>
 	<a href="javascript:next()">==></a>

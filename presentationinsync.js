@@ -27,6 +27,10 @@ app.get('/', function (req, res) {
 	res.render('index.ejs');
 })
 
+app.get('/master.html', function (req, res) {
+	res.redirect('control');
+})
+
 app.get('/control', function (req, res) {
 	res.render('control.ejs');
 })

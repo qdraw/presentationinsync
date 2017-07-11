@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>TEST</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" href=""> -->
+	<style>
+		html, body, div, span, applet, object, iframe,
+		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+		a, abbr, acronym, address, big, cite, code,
+		del, dfn, em, img, ins, kbd, q, s, samp,
+		small, strike, strong, sub, sup, tt, var,
+		b, u, i, center,
+		dl, dt, dd, ol, ul, li,
+		fieldset, form, label, legend,
+		table, caption, tbody, tfoot, thead, tr, th, td,
+		article, aside, canvas, details, embed,
+		figure, figcaption, footer, header, hgroup,
+		menu, nav, output, ruby, section, summary,
+		time, mark, audio, video {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		font-size: 100%;
+		font: inherit;
+		vertical-align: baseline;
+		}
+		/* HTML5 display-role reset for older browsers */
+		article, aside, details, figcaption, figure,
+		footer, header, hgroup, menu, nav, section {
+		display: block;
+		}
+		body {
+		line-height: 1;
+		}
+		ol, ul {
+		list-style: none;
+		}
+		blockquote, q {
+		quotes: none;
+		}
+		blockquote:before, blockquote:after,
+		q:before, q:after {
+		content: '';
+		content: none;
+		}
+		table {
+		border-collapse: collapse;
+		border-spacing: 0;
+		}
+
+		 #image {
+			 max-width: 100%;
+		 }
+	</style>
+
+	<!-- <link rel="icon" type="image/png" href="https://apollo.qdraw.eu/ml/favicon.png" /> -->
+  </head>
+  <body>
+
+<script>
+	function next() {
+		document.querySelector("#image").src = ""
+
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && (this.status === 200 || this.status === 304) && xhttp.responseText.length >= 4) {
+				console.log("send>>" + xhttp.responseText);
+			}
+		};
+		xhttp.open("GET", "next" , true);
+		xhttp.send();
+	}
+	function prev() {
+		document.querySelector("#image").src = ""
+
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && (this.status === 200 || this.status === 304) && xhttp.responseText.length >= 4) {
+				console.log("send>>" + xhttp.responseText);
+			}
+		};
+		xhttp.open("GET", "prev" , true);
+		xhttp.send();
+	}
+	var imgurl = undefined;
+
+	function getImage() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && (this.status === 200 || this.status === 304) && xhttp.responseText.length >= 4) {
+
+				if (JSON.parse(xhttp.responseText) !== imgurl) {
+					imgurl = JSON.parse(xhttp.responseText);
+					document.querySelector("#image").src = imgurl
+					console.log(xhttp.responseText);
+				}
+			}
+
+		};
+
+		xhttp.open("GET", "status" , true);
+		xhttp.send();
+	}
+
+	setInterval(function(){
+		getImage();
+	}, 3500);
+
+	getImage();
+
+</script>
+	<a href="javascript:prev()"><==</a>
+	<a href="javascript:next()">==></a>
+	<br />
+	<img src="#" alt="" id="image" />
+  </body>
+</html>

@@ -75,7 +75,7 @@
 
 	if (location.pathname.split("/").length >= 3) {
 		var socket = io({
-			path: "/" + location.pathname.split("/")[1]
+			path: "/" + location.pathname.split("/")[1] + "/socket.io"
 		});
 	}
 	if (location.pathname.split("/").length === 2) {

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Presentation in Sync</title>
+	<head>
+	<meta charset="utf-8">
+	<title>Presentation in Sync</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <link rel="stylesheet" href=""> -->
+	<!-- <link rel="stylesheet" href=""> -->
 	<style>
 		html, body, div, span, applet, object, iframe,
 		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -19,35 +19,35 @@
 		figure, figcaption, footer, header, hgroup,
 		menu, nav, output, ruby, section, summary,
 		time, mark, audio, video {
-		margin: 0;
-		padding: 0;
-		border: 0;
-		font-size: 100%;
-		font: inherit;
-		vertical-align: baseline;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			font-size: 100%;
+			font: inherit;
+			vertical-align: baseline;
 		}
 		/* HTML5 display-role reset for older browsers */
 		article, aside, details, figcaption, figure,
 		footer, header, hgroup, menu, nav, section {
-		display: block;
+			display: block;
 		}
 		body {
-		line-height: 1;
+			  line-height: 1;
 		}
 		ol, ul {
-		list-style: none;
+			list-style: none;
 		}
 		blockquote, q {
-		quotes: none;
+			quotes: none;
 		}
 		blockquote:before, blockquote:after,
 		q:before, q:after {
-		content: '';
-		content: none;
+			content: '';
+			content: none;
 		}
 		table {
-		border-collapse: collapse;
-		border-spacing: 0;
+			border-collapse: collapse;
+			border-spacing: 0;
 		}
 
 		 #image {
@@ -62,6 +62,28 @@
 	  <script src="socket.io/socket.io.js"></script>
 
 <script>
+	if (!Array.prototype.filter) {
+		Array.prototype.filter = function (fn, context) {
+			var i,
+			value,
+			result = [],
+			length;
+			if (!this || typeof fn !== 'function' || (fn instanceof RegExp)) {
+				throw new TypeError();
+			}
+			length = this.length;
+			for (i = 0; i < length; i++) {
+				if (this.hasOwnProperty(i)) {
+					value = this[i];
+					if (fn.call(context, value, i, this)) {
+						result.push(value);
+					}
+				}
+			}
+			return result;
+		};
+	}
+
 	function next() {
 		document.querySelector("#image").style.opacity = 0;
 		socket.emit('next', {});
@@ -74,16 +96,16 @@
 	var imgurl = undefined;
 
 	if (location.pathname.split("/").length >= 3) {
-        console.log(location.pathname.split("/")[1]);
+		var folderArray = location.pathname.split("/").filter(function(v){return v!==''});
 		var socket = io({
-			path: "/" + location.pathname.split("/")[1] + "/socket.io"
+			path: "/" + folderArray[0] + "/socket.io"
 		});
 	}
 	if (location.pathname.split("/").length === 2) {
 		var socket = io();
 	}
 
-    socket.on('status', function (data) {
+	socket.on('status', function (data) {
 		console.log(data.image);
 		if (data.image !== undefined) {
 			document.querySelector("#image").style.opacity = 0;
@@ -92,7 +114,7 @@
 				document.querySelector("#image").src = data.image;
 			}, 500);
 		}
-     });
+	 });
 </script>
 	<a href="javascript:prev()"><==</a>
 	<a href="javascript:next()">==></a>

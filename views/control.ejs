@@ -74,6 +74,7 @@
 	var imgurl = undefined;
 
 	if (location.pathname.split("/").length >= 3) {
+        console.log(location.pathname.split("/")[1]);
 		var socket = io({
 			path: "/" + location.pathname.split("/")[1] + "/socket.io"
 		});

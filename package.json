@@ -2,8 +2,9 @@
   "name": "preso",
   "version": "1.0.0",
   "description": "",
-  "main": "preso.js",
+  "main": "presentationinsync.js",
   "scripts": {
+      "start": "node presentationinsync.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,5 +15,7 @@
     "express": "^4.15.3",
     "request": "^2.81.0",
     "socket.io": "^2.0.3"
-  }
+  },
+  "engines":{"node": "8.1.4"}
+
 }

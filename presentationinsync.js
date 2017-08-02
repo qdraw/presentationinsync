@@ -14,6 +14,8 @@ server.listen(port, function () {
 
 app.use( "/images", express.static( __dirname + '/images' ) );
 app.use( "/media", express.static( __dirname + '/media' ) );
+app.use( "/presentationinsync/media", express.static( __dirname + '/media' ) );
+
 
 var getdropbox = require('./lib/getdropbox.js');
 getdropbox.syncFolder();

@@ -49,6 +49,9 @@ io.on('connection', function (socket) {
 	}
 
 	allClients.push(socket);
+
+	getdropbox.syncFolder();
+
 	socket.on('disconnect', function() {
 		console.log('Got disconnect!');
 

@@ -16,6 +16,9 @@ app.use( "/images", express.static( __dirname + '/images' ) );
 app.use( "/media", express.static( __dirname + '/media' ) );
 app.use( "/presentationinsync/media", express.static( __dirname + '/media' ) );
 
+global.content_hash_list = {};
+global.path_lower_list = {};
+global.content_hash_list_counter = 0;
 
 var getdropbox = require('./lib/getdropbox.js');
 getdropbox.syncFolder();
@@ -28,36 +31,58 @@ app.set('view engine', 'ejs');
 
 
 app.get('/', function (req, res) {
+	console.log(global.path_lower_list);
 	res.render('index.ejs');
 })
 
-app.get('/master.html', function (req, res) {
-	res.redirect('control');
-})
+app.get('/:id', function(req, res) {
+	var id = req.params.id;
 
-app.get('/control', function (req, res) {
-	res.render('control.ejs');
-})
+	var allProjects = [];
+	Object.keys(global.path_lower_list).forEach(function(key) {
+	    allProjects.push(key.replace(process.env.DROPBOX_FOLDER,""));
+	});
+
+	if (allProjects.indexOf(id) >= 0) {
+		return res.render('viewer', {id: id});
+	}
+	if (allProjects.indexOf(id) === -1) {
+		return res.render('index');
+	}
+});
 
 
-var currentItem = 0;
+// app.get('/control', function (req, res) {
+// 	res.render('control.ejs');
+// })
+
+
+var currentItem = {};
 var allClients = [];
 
 io.on('connection', function (socket) {
-	if (global.content_hash_list[currentItem] !== undefined) {
-		socket.emit('status', { image: "images/" + global.content_hash_list[currentItem] });
-	}
 
 	allClients.push(socket);
-
-	getdropbox.syncFolder();
 
 	socket.on('disconnect', function() {
 		console.log('Got disconnect!');
 
 		var i = allClients.indexOf(socket);
 		allClients.splice(i, 1);
-   });
+	});
+
+	socket.on('status', function (data) {
+		console.log(data.id);
+		if (currentItem[data.id] === undefined) {
+			currentItem[data.id] = 0;
+		}
+		console.log(currentItem[data.id]);
+		console.log(global.content_hash_list[data.id]);
+		if (global.content_hash_list[data.id][currentItem[data.id]] !== undefined) {
+			console.log("sdf");
+			socket.emit('status', { image: "images/" + global.content_hash_list[currentItem[data.id]] });
+		}
+	});
 
 
 	socket.on('next', function (data) {
@@ -85,7 +110,6 @@ io.on('connection', function (socket) {
 	});
 
 });
-
 
 var updateDropboxContent = setInterval(function(){
 	if (allClients.length >= 1) {

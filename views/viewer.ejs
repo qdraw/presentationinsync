@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<title><%= id %> - Presentation in Sync</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- <link rel="stylesheet" href=""> -->
+	<style>
+		html, body, div, span, applet, object, iframe,
+		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+		a, abbr, acronym, address, big, cite, code,
+		del, dfn, em, img, ins, kbd, q, s, samp,
+		small, strike, strong, sub, sup, tt, var,
+		b, u, i, center,
+		dl, dt, dd, ol, ul, li,
+		fieldset, form, label, legend,
+		table, caption, tbody, tfoot, thead, tr, th, td,
+		article, aside, canvas, details, embed,
+		figure, figcaption, footer, header, hgroup,
+		menu, nav, output, ruby, section, summary,
+		time, mark, audio, video {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			font-size: 100%;
+			font: inherit;
+			vertical-align: baseline;
+		}
+		/* HTML5 display-role reset for older browsers */
+		article, aside, details, figcaption, figure,
+		footer, header, hgroup, menu, nav, section {
+			display: block;
+		}
+		body {
+			  line-height: 1;
+		}
+		ol, ul {
+			list-style: none;
+		}
+		blockquote, q {
+			quotes: none;
+		}
+		blockquote:before, blockquote:after,
+		q:before, q:after {
+			content: '';
+			content: none;
+		}
+		table {
+			border-collapse: collapse;
+			border-spacing: 0;
+		}
+
+		 #image {
+			 max-width: 100%;
+			 transition: opacity 0.5s ease-in-out;
+		 }
+	</style>
+
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/presentationinsync/media/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/presentationinsync/media/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/presentationinsync/media/favicon-16x16.png">
+	<link rel="manifest" href="/presentationinsync/media/manifest.json">
+	<link rel="mask-icon" href="/presentationinsync/media/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="/presentationinsync/media/favicon.ico">
+	<meta name="apple-mobile-web-app-title" content="Presentation in Sync">
+	<meta name="application-name" content="Presentation in Sync">
+	<meta name="msapplication-config" content="/presentationinsync/media/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+
+  </head>
+  <body>
+	  <script src="socket.io/socket.io.js"></script>
+
+<script>
+	if (!Array.prototype.filter) {
+		Array.prototype.filter = function (fn, context) {
+			var i,
+			value,
+			result = [],
+			length;
+			if (!this || typeof fn !== 'function' || (fn instanceof RegExp)) {
+				throw new TypeError();
+			}
+			length = this.length;
+			for (i = 0; i < length; i++) {
+				if (this.hasOwnProperty(i)) {
+					value = this[i];
+					if (fn.call(context, value, i, this)) {
+						result.push(value);
+					}
+				}
+			}
+			return result;
+		};
+	}
+
+	function next() {
+		document.querySelector("#image").style.opacity = 0;
+		socket.emit('next', {});
+	}
+	function prev() {
+		document.querySelector("#image").style.opacity = 0;
+		socket.emit('prev', {});
+	}
+
+	var imgurl = undefined;
+
+	if (location.pathname.split("/").length >= 3) {
+		var folderArray = location.pathname.split("/").filter(function(v){return v!==''});
+		var socket = io({
+			path: "/" + folderArray[0] + "/socket.io"
+		});
+	}
+	if (location.pathname.split("/").length === 2) {
+		var socket = io();
+	}
+
+	socket.emit('status', {id:"<%= id %>"});
+
+	socket.on('status', function (data) {
+		console.log(data.id);
+		console.log(data.image);
+		// if (data.image !== undefined) {
+		// 	document.querySelector("#image").style.opacity = 0;
+		// 	setTimeout(function(){
+		// 		document.querySelector("#image").style.opacity = 1;
+		// 		document.querySelector("#image").src = data.image;
+		// 	}, 500);
+		// }
+	 });
+</script>
+	<!-- <a href="javascript:prev()"><==</a>
+	<a href="javascript:next()">==></a>
+	<br /> -->
+	<img src="#" alt="" id="image" />
+  </body>
+</html>

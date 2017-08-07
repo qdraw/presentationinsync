@@ -113,6 +113,7 @@ io.on('connection', function (socket) {
 
 		currentItem[data.id]++
 
+		console.log(global.content[data.id]);
 		console.log(global.content[data.id].length);
 
 		if (currentItem[data.id] >= global.content[data.id].length ) {
@@ -125,19 +126,22 @@ io.on('connection', function (socket) {
 	socket.on('prev', function (data) {
 		// console.log("prev");
 
-		currentItem--
+		currentItem[data.id]--
 
-		if (currentItem <= -1 ) {
-			currentItem = global.content[data.id].length-1
+		if (currentItem[data.id] <= -1 ) {
+			currentItem[data.id] = global.content[data.id].length-1
 		}
-		socket.emit('status', { image: "images/" + global.content[data.id][currentItem] });
-		socket.broadcast.emit('status', { image: "images/" + global.content[data.id][currentItem] });
+		if (global.content[data.id][currentItem[data.id]] !== undefined) {
+			socket.emit('status', { image: "images/" + global.content[data.id][currentItem[data.id]] });
+			socket.broadcast.emit('status', { image: "images/" + global.content[data.id][currentItem[data.id]] });
+		}
 	});
 
 });
 
 var updateDropboxContent = setInterval(function(){
 	if (allClients.length >= 1) {
+		global.content = {}
 		getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
 	}
 }, 20000);

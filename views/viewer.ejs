@@ -70,7 +70,7 @@
 
   </head>
   <body>
-	  <script src="/socket.io/socket.io.js"></script>
+	  <script src="socket.io/socket.io.js"></script>
 
 <script>
 	if (!Array.prototype.filter) {
@@ -95,18 +95,17 @@
 		};
 	}
 
-	function next() {
-		document.querySelector("#image").style.opacity = 0;
-		socket.emit('next', {id:"<%= id %>"});
-	}
-	function prev() {
-		document.querySelector("#image").style.opacity = 0;
-		socket.emit('prev', {id:"<%= id %>"});
-	}
-
 	var imgurl = undefined;
 
-	var socket = io();
+	if (location.pathname.split("/").length >= 3) {
+		var folderArray = location.pathname.split("/").filter(function(v){return v!==''});
+		var socket = io({
+			path: "/" + folderArray[0] + "/socket.io"
+		});
+	}
+	if (location.pathname.split("/").length === 2) {
+		var socket = io();
+	}
 
 	socket.emit('status', {id:"<%= id %>"});
 
@@ -117,14 +116,14 @@
 			document.querySelector("#image").style.opacity = 0;
 			setTimeout(function(){
 				document.querySelector("#image").style.opacity = 1;
-				document.querySelector("#image").src = "../" + data.image;
+				document.querySelector("#image").src = data.image;
 			}, 500);
 		}
 	 });
 </script>
-	<a href="javascript:prev()" style="font-size:30px;"><==</a>
-	<a href="javascript:next()" style="font-size:30px;">==></a>
-	<br />
+	<!-- <a href="javascript:prev()"><==</a>
+	<a href="javascript:next()">==></a>
+	<br /> -->
 	<img src="#" alt="" id="image" />
   </body>
 </html>

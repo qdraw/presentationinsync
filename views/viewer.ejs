@@ -95,15 +95,6 @@
 		};
 	}
 
-	function next() {
-		document.querySelector("#image").style.opacity = 0;
-		socket.emit('next', {});
-	}
-	function prev() {
-		document.querySelector("#image").style.opacity = 0;
-		socket.emit('prev', {});
-	}
-
 	var imgurl = undefined;
 
 	if (location.pathname.split("/").length >= 3) {
@@ -121,13 +112,13 @@
 	socket.on('status', function (data) {
 		console.log(data.id);
 		console.log(data.image);
-		// if (data.image !== undefined) {
-		// 	document.querySelector("#image").style.opacity = 0;
-		// 	setTimeout(function(){
-		// 		document.querySelector("#image").style.opacity = 1;
-		// 		document.querySelector("#image").src = data.image;
-		// 	}, 500);
-		// }
+		if (data.image !== undefined) {
+			document.querySelector("#image").style.opacity = 0;
+			setTimeout(function(){
+				document.querySelector("#image").style.opacity = 1;
+				document.querySelector("#image").src = data.image;
+			}, 500);
+		}
 	 });
 </script>
 	<!-- <a href="javascript:prev()"><==</a>

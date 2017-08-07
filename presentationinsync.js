@@ -30,7 +30,12 @@ app.set('view engine', 'ejs');
 
 
 app.get('/', function (req, res) {
-	res.render('index.ejs');
+	if (global.content["root"] !== undefined) {
+		res.render('viewer', {id: "root"});
+	}
+	if (global.content["root"] === undefined) {
+		res.render('index.ejs');
+	}
 })
 
 app.get('/:id', function(req, res) {
@@ -44,11 +49,30 @@ app.get('/:id', function(req, res) {
 	if (allProjects.indexOf(id) >= 0) {
 		return res.render('viewer', {id: id});
 	}
-	if (allProjects.indexOf(id) === -1) {
+	if (allProjects.indexOf(id) === -1 && id !== "control") {
 		return res.render('index');
+	}
+	if ( id === "control") {
+		return res.render('control', {id: "root"});
 	}
 });
 
+app.get('/:id/control', function(req, res) {
+	var id = req.params.id;
+
+	var allProjects = [];
+	Object.keys(global.content).forEach(function(key) {
+	    allProjects.push(key);
+	});
+
+	if (allProjects.indexOf(id) >= 0) {
+		return res.render('control', {id: id});
+	}
+	if (allProjects.indexOf(id) === -1) {
+		return res.render('index');
+	}
+
+});
 
 // app.get('/control', function (req, res) {
 // 	res.render('control.ejs');
@@ -71,28 +95,31 @@ io.on('connection', function (socket) {
 
 	socket.on('status', function (data) {
 		console.log(data.id);
+
 		if (currentItem[data.id] === undefined) {
 			currentItem[data.id] = 0;
 		}
+
 		console.log(currentItem[data.id]);
-		console.log(global.content_hash_list[data.id]);
-		if (global.content_hash_list[data.id][currentItem[data.id]] !== undefined) {
-			console.log("sdf");
-			socket.emit('status', { image: "images/" + global.content_hash_list[currentItem[data.id]] });
+		console.log(global.content[data.id].length);
+
+		if (global.content[data.id] !== undefined) {
+			socket.emit('status', { image: "images" + global.content[data.id][currentItem[data.id]] });
 		}
 	});
 
 
 	socket.on('next', function (data) {
 
-		// console.log("next");
-		currentItem++
+		currentItem[data.id]++
 
-		if (currentItem >= global.content_hash_list.length ) {
-			currentItem = 0
+		console.log(global.content[data.id].length);
+
+		if (currentItem[data.id] >= global.content[data.id].length ) {
+			currentItem[data.id] = 0
 		}
-		socket.emit('status', { image: "images/" + global.content_hash_list[currentItem] });
-		socket.broadcast.emit('status', { image: "images/" + global.content_hash_list[currentItem] });
+		socket.emit('status', { image: "images/" + global.content[data.id][currentItem[data.id]] });
+		socket.broadcast.emit('status', { image: "images/" + global.content[data.id][currentItem[data.id]] });
 	});
 
 	socket.on('prev', function (data) {
@@ -101,19 +128,19 @@ io.on('connection', function (socket) {
 		currentItem--
 
 		if (currentItem <= -1 ) {
-			currentItem = global.content_hash_list.length-1
+			currentItem = global.content[data.id].length-1
 		}
-		socket.emit('status', { image: "images/" + global.content_hash_list[currentItem] });
-		socket.broadcast.emit('status', { image: "images/" + global.content_hash_list[currentItem] });
+		socket.emit('status', { image: "images/" + global.content[data.id][currentItem] });
+		socket.broadcast.emit('status', { image: "images/" + global.content[data.id][currentItem] });
 	});
 
 });
 
-// var updateDropboxContent = setInterval(function(){
-// 	if (allClients.length >= 1) {
-// 		getdropbox.syncFolder();
-// 	}
-// }, 50000);
+var updateDropboxContent = setInterval(function(){
+	if (allClients.length >= 1) {
+		getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
+	}
+}, 20000);
 
 
 // io.on('connection', function (socket) {

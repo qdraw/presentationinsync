@@ -2,7 +2,7 @@
 <html>
 	<head>
 	<meta charset="utf-8">
-	<title>Presentation in Sync</title>
+	<title><%= id %> - Presentation in Sync</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- <link rel="stylesheet" href=""> -->
 	<style>
@@ -56,6 +56,7 @@
 		 }
 	</style>
 
+
 	<link rel="apple-touch-icon" sizes="180x180" href="/presentationinsync/media/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/presentationinsync/media/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="/presentationinsync/media/favicon-16x16.png">
@@ -67,9 +68,9 @@
 	<meta name="msapplication-config" content="/presentationinsync/media/browserconfig.xml">
 	<meta name="theme-color" content="#ffffff">
 
-</head>
-<body>
-	<script src="socket.io/socket.io.js"></script>
+  </head>
+  <body>
+	  <script src="/socket.io/socket.io.js"></script>
 
 <script>
 	if (!Array.prototype.filter) {
@@ -96,32 +97,27 @@
 
 	function next() {
 		document.querySelector("#image").style.opacity = 0;
-		socket.emit('next', {});
+		socket.emit('next', {id:"<%= id %>"});
 	}
 	function prev() {
 		document.querySelector("#image").style.opacity = 0;
-		socket.emit('prev', {});
+		socket.emit('prev', {id:"<%= id %>"});
 	}
 
 	var imgurl = undefined;
 
-	if (location.pathname.split("/").length >= 3) {
-		var folderArray = location.pathname.split("/").filter(function(v){return v!==''});
-		var socket = io({
-			path: "/" + folderArray[0] + "/socket.io"
-		});
-	}
-	if (location.pathname.split("/").length === 2) {
-		var socket = io();
-	}
+	var socket = io();
+
+	socket.emit('status', {id:"<%= id %>"});
 
 	socket.on('status', function (data) {
+		console.log(data.id);
 		console.log(data.image);
 		if (data.image !== undefined) {
 			document.querySelector("#image").style.opacity = 0;
 			setTimeout(function(){
 				document.querySelector("#image").style.opacity = 1;
-				document.querySelector("#image").src = data.image;
+				document.querySelector("#image").src = "../" + data.image;
 			}, 500);
 		}
 	 });

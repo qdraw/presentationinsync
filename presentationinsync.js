@@ -16,12 +16,11 @@ app.use( "/images", express.static( __dirname + '/images' ) );
 app.use( "/media", express.static( __dirname + '/media' ) );
 app.use( "/presentationinsync/media", express.static( __dirname + '/media' ) );
 
-global.content_hash_list = {};
-global.path_lower_list = {};
-global.content_hash_list_counter = 0;
+global.content = {};
+
 
 var getdropbox = require('./lib/getdropbox.js');
-getdropbox.syncFolder();
+getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
 
 
 // Routing
@@ -31,7 +30,6 @@ app.set('view engine', 'ejs');
 
 
 app.get('/', function (req, res) {
-	console.log(global.path_lower_list);
 	res.render('index.ejs');
 })
 
@@ -39,8 +37,8 @@ app.get('/:id', function(req, res) {
 	var id = req.params.id;
 
 	var allProjects = [];
-	Object.keys(global.path_lower_list).forEach(function(key) {
-	    allProjects.push(key.replace(process.env.DROPBOX_FOLDER,""));
+	Object.keys(global.content).forEach(function(key) {
+	    allProjects.push(key);
 	});
 
 	if (allProjects.indexOf(id) >= 0) {
@@ -111,11 +109,11 @@ io.on('connection', function (socket) {
 
 });
 
-var updateDropboxContent = setInterval(function(){
-	if (allClients.length >= 1) {
-		getdropbox.syncFolder();
-	}
-}, 50000);
+// var updateDropboxContent = setInterval(function(){
+// 	if (allClients.length >= 1) {
+// 		getdropbox.syncFolder();
+// 	}
+// }, 50000);
 
 
 // io.on('connection', function (socket) {

@@ -17,7 +17,8 @@ app.use( "/media", express.static( __dirname + '/media' ) );
 app.use( "/presentationinsync/media", express.static( __dirname + '/media' ) );
 
 global.content = {};
-
+global.contentHashCounter = 0;
+global.contentIsReady = false;
 
 var getdropbox = require('./lib/getdropbox.js');
 getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
@@ -50,7 +51,12 @@ app.get('/:id', function(req, res) {
 		return res.render('viewer', {id: id});
 	}
 	if (allProjects.indexOf(id) === -1 && id !== "control") {
-		return res.render('index');
+		if (global.contentIsReady === false) {
+			return res.render('reload');
+		}
+		if (global.contentIsReady === true) {
+			return res.render('index');
+		}
 	}
 	if ( id === "control") {
 		return res.render('control', {id: "root"});
@@ -94,47 +100,63 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('status', function (data) {
-		console.log(data.id);
+		// console.log("data.id " +data.id);
 
 		if (currentItem[data.id] === undefined) {
 			currentItem[data.id] = 0;
 		}
 
-		console.log(currentItem[data.id]);
-		console.log(global.content[data.id].length);
-
-		if (global.content[data.id] !== undefined) {
-			socket.emit('status', { image: "images" + global.content[data.id][currentItem[data.id]] });
+		if (data.status !== undefined) {
+			if (data.status >= 400) {
+				getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
+			}
 		}
+
+		if (JSON.stringify(global.content) !== "{}") {
+			console.log("currentItem " + currentItem[data.id]);
+
+			if (global.content[data.id] !== undefined) {
+				socket.emit('status', { id: data.id, image: "images" + global.content[data.id][currentItem[data.id]] });
+			}
+		}
+
 	});
 
 
 	socket.on('next', function (data) {
 
-		currentItem[data.id]++
 
-		console.log(global.content[data.id]);
-		console.log(global.content[data.id].length);
+		if (JSON.stringify(global.content) !== "{}" && global.content[data.id] !== undefined) {
+			currentItem[data.id]++
 
-		if (currentItem[data.id] >= global.content[data.id].length ) {
-			currentItem[data.id] = 0
+			console.log(global.content[data.id]);
+			console.log(global.content[data.id].length);
+
+			if (currentItem[data.id] >= global.content[data.id].length ) {
+				currentItem[data.id] = 0
+			}
+			socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][currentItem[data.id]] });
+			socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][currentItem[data.id]] });
+
 		}
-		socket.emit('status', { image: "images/" + global.content[data.id][currentItem[data.id]] });
-		socket.broadcast.emit('status', { image: "images/" + global.content[data.id][currentItem[data.id]] });
+
+
 	});
 
 	socket.on('prev', function (data) {
-		// console.log("prev");
+		if (JSON.stringify(global.content) !== "{}" && global.content[data.id] !== undefined) {
+			currentItem[data.id]--
 
-		currentItem[data.id]--
+			if (currentItem[data.id] <= -1 ) {
+				currentItem[data.id] = global.content[data.id].length-1
+			}
+			if (global.content[data.id][currentItem[data.id]] !== undefined) {
+				socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][currentItem[data.id]] });
+				socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][currentItem[data.id]] });
+			}
+		}
 
-		if (currentItem[data.id] <= -1 ) {
-			currentItem[data.id] = global.content[data.id].length-1
-		}
-		if (global.content[data.id][currentItem[data.id]] !== undefined) {
-			socket.emit('status', { image: "images/" + global.content[data.id][currentItem[data.id]] });
-			socket.broadcast.emit('status', { image: "images/" + global.content[data.id][currentItem[data.id]] });
-		}
+
 	});
 
 });
@@ -144,7 +166,7 @@ var updateDropboxContent = setInterval(function(){
 		global.content = {}
 		getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
 	}
-}, 20000);
+}, 30000);
 
 
 // io.on('connection', function (socket) {

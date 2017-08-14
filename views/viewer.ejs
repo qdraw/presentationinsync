@@ -54,6 +54,15 @@
 			 max-width: 100%;
 			 transition: opacity 0.5s ease-in-out;
 		 }
+
+		 .preloader {
+			position:absolute;
+			top:48%;
+			left:48%;
+			z-index:100;
+			transition: opacity 0.5s ease-in-out;
+
+		}
 	</style>
 
 
@@ -110,20 +119,56 @@
 	socket.emit('status', {id:"<%= id %>"});
 
 	socket.on('status', function (data) {
-		console.log(data.id);
-		console.log(data.image);
-		if (data.image !== undefined) {
-			document.querySelector("#image").style.opacity = 0;
+
+		if (data.image !== undefined && data.id === "<%= id %>" ) {
+
+			// XHR
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', data.image, true);
+			xhr.onload = function () {
+				if (xhr.status >= 400) {
+					setTimeout(function(){
+						socket.emit('status', {id:"<%= id %>",status: xhr.status});
+					}, 500);
+					console.log('ERR', xhr.status);
+
+					if (document.querySelectorAll(".preloader").length === 1) {
+						document.querySelector(".preloader").style.opacity = 1;
+					}
+				}
+				if (xhr.status <= 399) {
+					console.log('DONE', xhr.status);
+					updateImage();
+					if (document.querySelectorAll(".preloader").length === 1) {
+						document.querySelector(".preloader").style.opacity = 0;
+					}
+				}
+			};
+			xhr.send(null);
+		}
+
+		function updateImage() {
+			setTimeout(function(){
+				document.querySelector("#image").style.opacity = 0;
+				document.querySelector("#image").src = data.image;
+			}, 250);
 			setTimeout(function(){
 				document.querySelector("#image").style.opacity = 1;
-				document.querySelector("#image").src = data.image;
 			}, 500);
-		}
+   	 	}
+
+
 	 });
+
+
 </script>
 	<!-- <a href="javascript:prev()"><==</a>
 	<a href="javascript:next()">==></a>
 	<br /> -->
 	<img src="#" alt="" id="image" />
+	<div class="preloader">
+		<img src="media/preloader.svg" width="100px" height="100px">
+	</div>
+
   </body>
 </html>

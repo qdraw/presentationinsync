@@ -111,16 +111,40 @@
 	socket.emit('status', {id:"<%= id %>"});
 
 	socket.on('status', function (data) {
-		console.log(data.id);
-		console.log(data.image);
-		if (data.image !== undefined) {
-			document.querySelector("#image").style.opacity = 0;
+
+		if (data.image !== undefined && data.id === "<%= id %>" ) {
+
+			data.image = "../" + data.image;
+
+			// XHR
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', data.image, true);
+			xhr.onload = function () {
+				if (xhr.status >= 400) {
+					setTimeout(function(){
+						socket.emit('status', {id:"<%= id %>",status: xhr.status});
+					}, 500);
+					console.log('ERR', xhr.status);
+				}
+				if (xhr.status <= 399) {
+					console.log('DONE', xhr.status + " " + data.image);
+					updateImage()
+				}
+			};
+			xhr.send(null);
+		}
+
+		function updateImage() {
+			setTimeout(function(){
+				document.querySelector("#image").style.opacity = 0;
+				document.querySelector("#image").src = data.image;
+			}, 250);
 			setTimeout(function(){
 				document.querySelector("#image").style.opacity = 1;
-				document.querySelector("#image").src = "../" + data.image;
 			}, 500);
 		}
 	 });
+
 </script>
 	<a href="javascript:prev()" style="font-size:30px;"><==</a>
 	<a href="javascript:next()" style="font-size:30px;">==></a>

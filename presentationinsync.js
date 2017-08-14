@@ -6,6 +6,7 @@ var io = require('socket.io')(server);
 var path = require('path');
 require('dotenv').config({path: path.join(__dirname,".env")});
 var port = process.env.PORT || process.env.port || 3000;
+var DEBUG = process.env.DEBUG || false;
 
 server.listen(port, function () {
 	console.log('Server listening at port http://localhost:%d', port);
@@ -35,7 +36,7 @@ app.get('/', function (req, res) {
 		res.render('viewer', {id: "root"});
 	}
 	if (global.content["root"] === undefined) {
-		res.render('index.ejs');
+		res.render('index');
 	}
 })
 
@@ -52,10 +53,12 @@ app.get('/:id', function(req, res) {
 	}
 	if (allProjects.indexOf(id) === -1 && id !== "control") {
 		if (global.contentIsReady === false) {
+			res.status(500);
 			return res.render('reload');
 		}
 		if (global.contentIsReady === true) {
-			return res.render('index');
+			res.status(404);
+			return res.render('notfound');
 		}
 	}
 	if ( id === "control") {
@@ -75,7 +78,14 @@ app.get('/:id/control', function(req, res) {
 		return res.render('control', {id: id});
 	}
 	if (allProjects.indexOf(id) === -1) {
-		return res.render('index');
+		if (global.contentIsReady === false) {
+			res.status(500);
+			return res.render('reload');
+		}
+		if (global.contentIsReady === true) {
+			res.status(404);
+			return res.render('notfound');
+		}
 	}
 
 });
@@ -93,14 +103,13 @@ io.on('connection', function (socket) {
 	allClients.push(socket);
 
 	socket.on('disconnect', function() {
-		console.log('Got disconnect!');
+		if (DEBUG) console.log('Got disconnect!');
 
 		var i = allClients.indexOf(socket);
 		allClients.splice(i, 1);
 	});
 
 	socket.on('status', function (data) {
-		// console.log("data.id " +data.id);
 
 		if (currentItem[data.id] === undefined) {
 			currentItem[data.id] = 0;
@@ -113,7 +122,6 @@ io.on('connection', function (socket) {
 		}
 
 		if (JSON.stringify(global.content) !== "{}") {
-			console.log("currentItem " + currentItem[data.id]);
 
 			if (global.content[data.id] !== undefined) {
 				socket.emit('status', { id: data.id, image: "images" + global.content[data.id][currentItem[data.id]] });
@@ -129,8 +137,8 @@ io.on('connection', function (socket) {
 		if (JSON.stringify(global.content) !== "{}" && global.content[data.id] !== undefined) {
 			currentItem[data.id]++
 
-			console.log(global.content[data.id]);
-			console.log(global.content[data.id].length);
+			// console.log(global.content[data.id]);
+			// console.log(global.content[data.id].length);
 
 			if (currentItem[data.id] >= global.content[data.id].length ) {
 				currentItem[data.id] = 0

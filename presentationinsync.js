@@ -43,104 +43,6 @@ app.get('/', function (req, res) {
 	}
 })
 
-// /* CONFIG JSON FILES FOR SLIDESHOWS DEFAULT OPTION*/
-// app.get('/images/:id/config.json', function(req, res) {
-// 	return res.json({
-// 		"slideshow": false
-// 	})
-// });
-//
-// app.get('/images/config.json', function(req, res) {
-// 	return res.json({
-// 		"slideshow": false
-// 	})
-// });
-//
-// app.get('/:id/slideshow', function(req, res) {
-// 	var id = req.params.id;
-//
-// 	if (global.currentItem[id] === undefined) {
-// 		global.currentItem[id] = 0;
-// 	}
-//
-// 	if (global.content[id] === undefined) {
-// 		return res.json({})
-// 	}
-// 	if (global.content[id] !== undefined) {
-// 		return res.json({"image": global.content[id][global.currentItem[id]]})
-// 	}
-// });
-//
-
-//
-// function updateSlideshow() {
-// 	var allProjects = [];
-// 	Object.keys(global.content).forEach(function(key) {
-// 		allProjects.push(key);
-// 	});
-//
-// 	if (allProjects.length >= 0) {
-// 		var item = 0
-// 		nextConfigItem()
-// 		function nextConfigItem() {
-// 			configFile = path.join(__dirname, "images" , allProjects[item] ,"config.json")
-// 			item++
-// 			if (item <= allProjects.length-1) {
-// 				readConfigFromDisk(configFile,item,nextConfigItem)
-// 			}
-// 			if (item === allProjects.length) {
-// 				readConfigFromDisk(configFile,item,function () {
-// 				})
-// 			}
-//
-// 		}
-// 	}
-// }
-//
-//
-// function readConfigFromDisk(configFile,item,callback) {
-// 	fs.access(configFile, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-// 		if (err === null) {
-// 			try {
-// 				jsonfile.readFile(configFile, function(err, data) {
-// 					if (data.slideshow !== undefined) {
-// 						if (isNaN(data.slideshow) === false) {
-// 							console.log(configFile,item);
-// 							var updateSlideshowItem = setInterval(function(){
-// 								console.log(configFile);
-// 								// global.currentItem[data.id]++
-// 								//
-// 								// if (global.currentItem[data.id] >= global.content[data.id].length ) {
-// 								// 	global.currentItem[data.id] = 0
-// 								// }
-// 								// socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
-// 								// socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
-//
-// 							}, data.slideshow);
-// 							callback(configFile,item)
-// 							// // console.log(global.content);
-// 							// console.log(this.configFile);
-// 							// if (global.currentItem[allProjects[i]] === undefined) {
-// 							// 	global.currentItem[allProjects[i]] = 0;
-// 							// }
-// 							//
-// 							// if (global.content[allProjects[i]] !== undefined) {
-// 							// 	io.sockets.emit('status', {"id":data.id, "image": global.content[allProjects[i]] })
-// 							//
-// 							// 	console.log(data.slideshow);
-// 							// }
-// 						}
-// 					}
-// 				})
-// 			} catch (e) {}
-// 		}
-// 		if (err !== null) {
-// 			callback(configFile,item)
-// 		}
-// 	});
-// }
-
-
 app.get('/:id', function(req, res) {
 	var id = req.params.id;
 
@@ -266,17 +168,6 @@ var updateDropboxContent = setInterval(function(){
 		getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
 	}
 }, 30000);
-
-// var updateSlideshowContent = setInterval(function(){
-// 	if (allClients.length >= 1) {
-// 		updateSlideshow()
-// 	}
-// }, 20000);
-//
-// setTimeout(function(){
-// 	updateSlideshow()
-// }, 2000);
-
 
 
 // io.on('connection', function (socket) {

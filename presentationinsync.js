@@ -71,38 +71,74 @@ app.get('/', function (req, res) {
 // 	}
 // });
 //
-// var updateSlideshow = setTimeout(function(){
+
+//
+// function updateSlideshow() {
 // 	var allProjects = [];
 // 	Object.keys(global.content).forEach(function(key) {
 // 		allProjects.push(key);
 // 	});
 //
-// 	for (var i = 0; i < allProjects.length; i++) {
-// 		console.log(allProjects[i]);
-// 		// configFile = path.join(path.dirname(__dirname), "images" , allProjects[i] ,"config.json")
-// 		configFile = path.join(__dirname, "images" , allProjects[i] ,"config.json")
+// 	if (allProjects.length >= 0) {
+// 		var item = 0
+// 		nextConfigItem()
+// 		function nextConfigItem() {
+// 			configFile = path.join(__dirname, "images" , allProjects[item] ,"config.json")
+// 			item++
+// 			if (item <= allProjects.length-1) {
+// 				readConfigFromDisk(configFile,item,nextConfigItem)
+// 			}
+// 			if (item === allProjects.length) {
+// 				readConfigFromDisk(configFile,item,function () {
+// 				})
+// 			}
 //
-// 		fs.access(configFile, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-// 			if (err === null) {
-// 				try {
-// 					jsonfile.readFile(configFile, function(err, data) {
-// 						console.log(data);
-// 						if (data.slideshow !== undefined) {
-// 							if (isNaN(data.slideshow) === false) {
-// 								console.log(data.slideshow);
-// 							}
-// 						}
-// 					})
-// 				} catch (e) {}
-// 			}
-// 			if (err !== null) {
-// 				console.log(err);
-// 			}
-// 		});
+// 		}
 // 	}
-// }, 2000);
-
-
+// }
+//
+//
+// function readConfigFromDisk(configFile,item,callback) {
+// 	fs.access(configFile, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+// 		if (err === null) {
+// 			try {
+// 				jsonfile.readFile(configFile, function(err, data) {
+// 					if (data.slideshow !== undefined) {
+// 						if (isNaN(data.slideshow) === false) {
+// 							console.log(configFile,item);
+// 							var updateSlideshowItem = setInterval(function(){
+// 								console.log(configFile);
+// 								// global.currentItem[data.id]++
+// 								//
+// 								// if (global.currentItem[data.id] >= global.content[data.id].length ) {
+// 								// 	global.currentItem[data.id] = 0
+// 								// }
+// 								// socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
+// 								// socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
+//
+// 							}, data.slideshow);
+// 							callback(configFile,item)
+// 							// // console.log(global.content);
+// 							// console.log(this.configFile);
+// 							// if (global.currentItem[allProjects[i]] === undefined) {
+// 							// 	global.currentItem[allProjects[i]] = 0;
+// 							// }
+// 							//
+// 							// if (global.content[allProjects[i]] !== undefined) {
+// 							// 	io.sockets.emit('status', {"id":data.id, "image": global.content[allProjects[i]] })
+// 							//
+// 							// 	console.log(data.slideshow);
+// 							// }
+// 						}
+// 					}
+// 				})
+// 			} catch (e) {}
+// 		}
+// 		if (err !== null) {
+// 			callback(configFile,item)
+// 		}
+// 	});
+// }
 
 
 app.get('/:id', function(req, res) {
@@ -197,19 +233,14 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('next', function (data) {
-
 		if (JSON.stringify(global.content) !== "{}" && global.content[data.id] !== undefined) {
 			global.currentItem[data.id]++
-
-			// console.log(global.content[data.id]);
-			// console.log(global.content[data.id].length);
 
 			if (global.currentItem[data.id] >= global.content[data.id].length ) {
 				global.currentItem[data.id] = 0
 			}
 			socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
 			socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
-
 		}
 	});
 
@@ -235,6 +266,17 @@ var updateDropboxContent = setInterval(function(){
 		getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
 	}
 }, 30000);
+
+// var updateSlideshowContent = setInterval(function(){
+// 	if (allClients.length >= 1) {
+// 		updateSlideshow()
+// 	}
+// }, 20000);
+//
+// setTimeout(function(){
+// 	updateSlideshow()
+// }, 2000);
+
 
 
 // io.on('connection', function (socket) {

@@ -153,6 +153,7 @@
 	socket.emit('status', {id:"<%= id %>"});
 
 	socket.on('status', function (data) {
+		console.log(data);
 
 		if (data.image !== undefined && data.id === "<%= id %>" ) {
 

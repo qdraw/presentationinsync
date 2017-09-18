@@ -79,7 +79,7 @@
 
   </head>
   <body>
-	  <script src="/socket.io/socket.io.js"></script>
+	  <script src="/js/socket.io.js"></script>
 
 <script>
 	if (!Array.prototype.filter) {
@@ -108,52 +108,9 @@
 
 	var socket = io();
 
-	// // # slideshow feature
-	// function loadJSON(path, success, error){
-	// 	var xhr = new XMLHttpRequest();
-	// 	xhr.onreadystatechange = function()
-	// 	{
-	// 		if (xhr.readyState === XMLHttpRequest.DONE) {
-	// 			if (xhr.status === 200) {
-	// 				if (success)
-	// 					success(JSON.parse(xhr.responseText));
-	// 			} else {
-	// 				if (error)
-	// 					error(xhr);
-	// 			}
-	// 		}
-	// 	};
-	// 	xhr.open("GET", path, true);
-	// 	xhr.send();
-	// }
-	//
-	// loadJSON("images/<%= id %>/config.json",
-	// 	 function(data) { slideshow(data); },
-	// 	 function(xhr) { console.error(xhr); }
-	// )
-	//
-	// function slideshow(data) {
-	// 	if (data !== undefined) {
-	// 		if (data.slideshow !== undefined) {
-	// 			if (isNaN(data.slideshow) === false) {
-	// 				if (data.slideshow < 3000) {
-	// 					data.slideshow = 3000
-	// 				}
-	// 				setInterval(function(){
-	// 					console.log(data.slideshow);
-	// 				}, data.slideshow);
-	//
-	// 			}
-	// 		}
-	// 	}
-	// }
-	// # end slideshow feature
-
-
 	socket.emit('status', {id:"<%= id %>"});
 
 	socket.on('status', function (data) {
-		console.log(data);
 
 		if (data.image !== undefined && data.id === "<%= id %>" ) {
 

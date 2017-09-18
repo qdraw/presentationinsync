@@ -4,6 +4,8 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var path = require('path');
+const fs = require('fs');
+const jsonfile = require('jsonfile');
 require('dotenv').config({path: path.join(__dirname,".env")});
 var port = process.env.PORT || process.env.port || 3000;
 var DEBUG = process.env.DEBUG || false;
@@ -22,6 +24,7 @@ global.contentHashCounter = 0;
 global.contentIsReady = false;
 
 var getdropbox = require('./lib/getdropbox.js');
+
 getdropbox.syncFolder(process.env.DROPBOX_FOLDER);
 
 
@@ -95,24 +98,25 @@ app.get('/:id/control', function(req, res) {
 // })
 
 
-var currentItem = {};
-var allClients = [];
+global.currentItem = {};
+global.allClients = [];
+
 
 io.on('connection', function (socket) {
 
-	allClients.push(socket);
+	global.allClients.push(socket);
 
 	socket.on('disconnect', function() {
 		if (DEBUG) console.log('Got disconnect!');
 
 		var i = allClients.indexOf(socket);
-		allClients.splice(i, 1);
+		global.allClients.splice(i, 1);
 	});
 
 	socket.on('status', function (data) {
 
-		if (currentItem[data.id] === undefined) {
-			currentItem[data.id] = 0;
+		if (global.currentItem[data.id] === undefined) {
+			global.currentItem[data.id] = 0;
 		}
 
 		if (data.status !== undefined) {
@@ -124,47 +128,36 @@ io.on('connection', function (socket) {
 		if (JSON.stringify(global.content) !== "{}") {
 
 			if (global.content[data.id] !== undefined) {
-				socket.emit('status', { id: data.id, image: "images" + global.content[data.id][currentItem[data.id]] });
+				socket.emit('status', { id: data.id, image: "images" + global.content[data.id][global.currentItem[data.id]] });
 			}
 		}
 
 	});
 
-
 	socket.on('next', function (data) {
-
-
 		if (JSON.stringify(global.content) !== "{}" && global.content[data.id] !== undefined) {
-			currentItem[data.id]++
+			global.currentItem[data.id]++
 
-			// console.log(global.content[data.id]);
-			// console.log(global.content[data.id].length);
-
-			if (currentItem[data.id] >= global.content[data.id].length ) {
-				currentItem[data.id] = 0
+			if (global.currentItem[data.id] >= global.content[data.id].length ) {
+				global.currentItem[data.id] = 0
 			}
-			socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][currentItem[data.id]] });
-			socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][currentItem[data.id]] });
-
+			socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
+			socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
 		}
-
-
 	});
 
 	socket.on('prev', function (data) {
 		if (JSON.stringify(global.content) !== "{}" && global.content[data.id] !== undefined) {
-			currentItem[data.id]--
+			global.currentItem[data.id]--
 
-			if (currentItem[data.id] <= -1 ) {
-				currentItem[data.id] = global.content[data.id].length-1
+			if (global.currentItem[data.id] <= -1 ) {
+				global.currentItem[data.id] = global.content[data.id].length-1
 			}
-			if (global.content[data.id][currentItem[data.id]] !== undefined) {
-				socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][currentItem[data.id]] });
-				socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][currentItem[data.id]] });
+			if (global.content[data.id][global.currentItem[data.id]] !== undefined) {
+				socket.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
+				socket.broadcast.emit('status', { id: data.id, image: "images/" + global.content[data.id][global.currentItem[data.id]] });
 			}
 		}
-
-
 	});
 
 });

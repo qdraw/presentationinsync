@@ -56,6 +56,7 @@
 
 		 .next,
 		 .prev {
+			 transition: opacity 0.25s ease-in-out;
 			 display: inline-block;
 			 margin: 20px;
 			 height: 60px;
@@ -147,12 +148,21 @@
 		}
 
 		function updateImage() {
+			if (document.querySelectorAll(".prev").length >= 1 && document.querySelectorAll(".next").length >= 1) {
+				document.querySelector(".prev").style.opacity = 0;
+				document.querySelector(".next").style.opacity = 0;
+			}
+
 			setTimeout(function(){
 				document.querySelector("#image").style.opacity = 0;
 				document.querySelector("#image").src = data.image;
 			}, 250);
 			setTimeout(function(){
 				document.querySelector("#image").style.opacity = 1;
+				if (document.querySelectorAll(".prev").length >= 1 && document.querySelectorAll(".next").length >= 1) {
+					document.querySelector(".prev").style.opacity = 1;
+					document.querySelector(".next").style.opacity = 1;
+				}
 			}, 500);
 		}
 	 });

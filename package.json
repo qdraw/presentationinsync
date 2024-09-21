@@ -12,7 +12,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "ejs": "^3.1.10",
-    "express": "^4.19.2",
+    "express": "^4.20.0",
     "jsonfile": "^5.0.0",
     "request": "^2.88.0",
     "slug": "^2.1.0",
